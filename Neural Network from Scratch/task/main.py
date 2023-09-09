@@ -18,8 +18,13 @@ def scale(X_train, X_test):
 
 
 def xavier(n_in, n_out):
-    # function to initialize weights at stage 3
-    return np.random.uniform(0, np.sqrt(2 / (n_in + n_out)), (n_in, n_out))
+    # Calculate the range for the uniform distribution
+    limit = np.sqrt(6.0 / (n_in + n_out))
+
+    # Initialize weights with values sampled from the uniform distribution
+    weights = np.random.uniform(-limit, limit, (n_in, n_out))
+
+    return weights
 
 
 def sigmoid(x):
@@ -93,4 +98,4 @@ if __name__ == '__main__':
     # test sigmoid activation function
     Z1 = sigmoid(np.array([-1, 0, 1, 2]))
 
-    print([X_train[2, 778], X_train[0, 774]], W1.flatten().tolist(), list(Z1))
+    print([X_train[2, 778], X_test[0, 774]], W1.flatten().tolist(), list(Z1))
