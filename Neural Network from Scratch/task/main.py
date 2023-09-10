@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import requests
 from matplotlib import pyplot as plt
+from NeuralNetwork import OneLayerNeural
 
 
 def one_hot(data: np.ndarray) -> np.ndarray:
@@ -12,24 +13,9 @@ def one_hot(data: np.ndarray) -> np.ndarray:
     return y_train
 
 
-def scale(X_train, X_test):
+def scale(x_train, x_test):
     # function to scale data at stage 2
-    return X_train / X_train.max(), X_test / X_test.max()
-
-
-def xavier(n_in, n_out):
-    # Calculate the range for the uniform distribution
-    limit = np.sqrt(6.0 / (n_in + n_out))
-
-    # Initialize weights with values sampled from the uniform distribution
-    weights = np.random.uniform(-limit, limit, (n_in, n_out))
-
-    return weights
-
-
-def sigmoid(x):
-    # function to apply sigmoid activation function at stage 3
-    return 1 / (1 + np.exp(-x))
+    return x_train / x_train.max(), x_test / x_test.max()
 
 
 def plot(loss_history: list, accuracy_history: list, filename='plot'):
@@ -90,12 +76,13 @@ if __name__ == '__main__':
     y_test = one_hot(raw_test['label'].values)
 
     # start analysis
+    # scale data
     X_train,  X_test = scale(X_train, X_test)
 
-    # initialize weights
-    W1 = xavier(2, 3)
+    # input neurons - number of features
+    # output neurons - number of classes
+    oneLayerNeural = OneLayerNeural(784, 10)
 
-    # test sigmoid activation function
-    Z1 = sigmoid(np.array([-1, 0, 1, 2]))
-
-    print([X_train[2, 778], X_test[0, 774]], W1.flatten().tolist(), list(Z1))
+    # forward step
+    Z1 = oneLayerNeural.forward(X_train[0:2, :])
+    print(np.array(Z1).flatten().tolist())
