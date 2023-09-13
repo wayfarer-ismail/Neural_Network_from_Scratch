@@ -11,6 +11,17 @@ class OneLayerNeural:
         # Perform a forward step
         return sigmoid(a @ self.weights + self.biases)
 
+    def backward(self, X, y, alpha):
+        # Calculating gradients for each of the weights and biases.
+        dLdw = X.T @ (mse_loss_derivative(self.forward(X), y) * sigmoid_derivative(self.forward(X)))
+        dLdb = np.sum(mse_loss_derivative(self.forward(X), y) * sigmoid_derivative(self.forward(X)), axis=0)
+
+        # Update the weights
+        self.weights -= alpha * dLdw
+
+        # Update the biases
+        self.biases -= alpha * dLdb
+
 
 def xavier(n_in, n_out):
     # Calculate the range for the uniform distribution
@@ -27,14 +38,14 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 
-def mse_loss(y_true, y_pred):
+def mse_loss(y_pred, y_true):
     # function to calculate mean square error
-    return ((y_true - y_pred) ** 2).mean()
+    return ((y_pred - y_true) ** 2).mean()
 
 
-def mse_loss_derivative(y_true, y_pred):
+def mse_loss_derivative(y_pred, y_true):
     # function to calculate derivative of mean square error
-    return 2 * (y_pred - y_true) / y_true.size
+    return 2 * (y_pred - y_true)
 
 
 def sigmoid_derivative(x):
