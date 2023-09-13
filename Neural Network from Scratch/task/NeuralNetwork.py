@@ -25,3 +25,18 @@ def xavier(n_in, n_out):
 def sigmoid(x):
     # function to apply sigmoid activation function at stage 3
     return 1 / (1 + np.exp(-x))
+
+
+def mse_loss(y_true, y_pred):
+    # function to calculate mean square error
+    return ((y_true - y_pred) ** 2).mean()
+
+
+def mse_loss_derivative(y_true, y_pred):
+    # function to calculate derivative of mean square error
+    return 2 * (y_pred - y_true) / y_true.size
+
+
+def sigmoid_derivative(x):
+    # function to calculate derivative of sigmoid activation function
+    return sigmoid(x) * (1 - sigmoid(x))
