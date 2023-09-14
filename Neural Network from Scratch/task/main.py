@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import requests
 from matplotlib import pyplot as plt
-from NeuralNetwork import OneLayerNeural
+from NeuralNetwork import OneLayerNeural, mse_loss, mse_loss_derivative, sigmoid_derivative
 
 
 def one_hot(data: np.ndarray) -> np.ndarray:
@@ -85,4 +85,19 @@ if __name__ == '__main__':
 
     # forward step
     Z1 = oneLayerNeural.forward(X_train[0:2, :])
-    print(np.array(Z1).flatten().tolist())
+
+    # backward step
+    oneLayerNeural.backward(X_train[0:2, :], y_train[0:2, :], 0.1)
+
+    # forward step after backward step
+    Z2 = oneLayerNeural.forward(X_train[0:2, :])
+
+    # calculate MSE between Z1 and Z2
+    loss2 = mse_loss(y_train[0:2, :], Z2)
+
+    # loss function
+    loss = mse_loss(np.array([-1, 0, 1, 2]), np.array([4, 3, 2, 1]))
+    loss_derivative = np.array(mse_loss_derivative(np.array([-1, 0, 1, 2]), np.array([4, 3, 2, 1]))).flatten().tolist()
+    sigmoid_derivative = np.array(sigmoid_derivative(np.array([-1, 0, 1, 2]))).flatten().tolist()
+
+    print([loss], loss_derivative, sigmoid_derivative, [loss2])
