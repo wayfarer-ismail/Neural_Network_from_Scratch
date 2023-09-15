@@ -84,16 +84,16 @@ if __name__ == '__main__':
     oneLayerNeural = OneLayerNeural(784, 10)
 
     # forward step
-    Z1 = oneLayerNeural.forward(X_train[0:2, :])
+    Z1 = oneLayerNeural.forward(X_train[:2])
 
     # backward step
-    oneLayerNeural.backward(X_train[0:2, :], y_train[0:2, :], 0.1)
+    oneLayerNeural.backward(X_train[:2], y_train[:2], 0.1)
 
     # forward step after backward step
-    Z2 = oneLayerNeural.forward(X_train[0:2, :])
+    Z2 = oneLayerNeural.forward(X_train[:2])
 
     # calculate MSE between Z1 and Z2
-    loss2 = mse_loss(y_train[0:2, :], Z2)
+    loss2 = mse_loss(Z2, y_train[:2])
 
     # loss function
     loss = mse_loss(np.array([-1, 0, 1, 2]), np.array([4, 3, 2, 1]))
