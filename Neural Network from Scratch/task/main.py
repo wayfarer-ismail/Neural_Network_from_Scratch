@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import requests
 from matplotlib import pyplot as plt
-from NeuralNetwork import OneLayerNeural, mse_loss, mse_loss_derivative, sigmoid_derivative
+from NeuralNetwork import OneLayerNeural, mse_loss, mse_loss_derivative, sigmoid_derivative, accuracy
 
 
 def one_hot(data: np.ndarray) -> np.ndarray:
@@ -83,21 +83,18 @@ if __name__ == '__main__':
     # output neurons - number of classes
     oneLayerNeural = OneLayerNeural(784, 10)
 
-    # forward step
-    Z1 = oneLayerNeural.forward(X_train[:2])
+    # # epoch learning
+    loss_history = []
+    accuracy_history = []
 
-    # backward step
-    oneLayerNeural.backward(X_train[:2], y_train[:2], 0.1)
+    acc1 = accuracy(oneLayerNeural, X_test, y_test)  # accuracy before learning
 
-    # forward step after backward step
-    Z2 = oneLayerNeural.forward(X_train[:2])
+    for _ in range(20):
+        oneLayerNeural.epoch_learn(X_train, y_train, 0.5)
+        acc = accuracy(oneLayerNeural, X_test, y_test)
+        accuracy_history.append(acc)
 
-    # calculate MSE between Z1 and Z2
-    loss2 = mse_loss(Z2, y_train[:2])
+    print([acc1], accuracy_history)
 
-    # loss function
-    loss = mse_loss(np.array([-1, 0, 1, 2]), np.array([4, 3, 2, 1]))
-    loss_derivative = np.array(mse_loss_derivative(np.array([-1, 0, 1, 2]), np.array([4, 3, 2, 1]))).flatten().tolist()
-    sigmoid_derivative = np.array(sigmoid_derivative(np.array([-1, 0, 1, 2]))).flatten().tolist()
+    plot(loss_history, accuracy_history, 'plot')
 
-    print([loss], loss_derivative, sigmoid_derivative, [loss2])

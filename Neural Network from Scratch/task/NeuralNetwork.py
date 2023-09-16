@@ -25,6 +25,11 @@ class OneLayerNeural:
         self.weights -= alpha * delta_W
         self.biases -= alpha * delta_b
 
+    def epoch_learn(self, X, y, alpha, batch_size=100):
+        # Perform an epoch of learning
+        for i in range(0, X.shape[0], batch_size):
+            self.backward(X[i:i + batch_size], y[i:i + batch_size], alpha)
+
 
 def xavier(n_in, n_out):
     # Calculate the range for the uniform distribution
@@ -54,3 +59,10 @@ def mse_loss_derivative(y_pred, y_true):
 def sigmoid_derivative(x):
     # function to calculate derivative of sigmoid activation function
     return sigmoid(x) * (1 - sigmoid(x))
+
+
+def accuracy(model, X, y):
+    # Calculate the accuracy of the model
+    y_pred = np.argmax(model.forward(X), axis=1)
+    y_true = np.argmax(y, axis=1)
+    return np.mean(y_pred == y_true)
