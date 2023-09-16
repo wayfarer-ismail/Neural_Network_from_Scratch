@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import requests
 from matplotlib import pyplot as plt
-from NeuralNetwork import OneLayerNeural, mse_loss, mse_loss_derivative, sigmoid_derivative, accuracy
+from NeuralNetwork import OneLayerNeural, accuracy
 
 
 def one_hot(data: np.ndarray) -> np.ndarray:
@@ -45,6 +45,21 @@ def plot(loss_history: list, accuracy_history: list, filename='plot'):
     plt.savefig(f'{filename}.png')
 
 
+def download_data():
+    # function to download data at stage 1
+    print('Train dataset loading.')
+    url = "https://www.dropbox.com/s/5vg67ndkth17mvc/fashion-mnist_train.csv?dl=1"
+    r = requests.get(url, allow_redirects=True)
+    open('../Data/fashion-mnist_train.csv', 'wb').write(r.content)
+    print('Loaded.')
+
+    print('Test dataset loading.')
+    url = "https://www.dropbox.com/s/9bj5a14unl5os6a/fashion-mnist_test.csv?dl=1"
+    r = requests.get(url, allow_redirects=True)
+    open('../Data/fashion-mnist_test.csv', 'wb').write(r.content)
+    print('Loaded.')
+
+
 if __name__ == '__main__':
 
     if not os.path.exists('../Data'):
@@ -53,17 +68,7 @@ if __name__ == '__main__':
     # Download data if it is unavailable.
     if ('fashion-mnist_train.csv' not in os.listdir('../Data') and
             'fashion-mnist_test.csv' not in os.listdir('../Data')):
-        print('Train dataset loading.')
-        url = "https://www.dropbox.com/s/5vg67ndkth17mvc/fashion-mnist_train.csv?dl=1"
-        r = requests.get(url, allow_redirects=True)
-        open('../Data/fashion-mnist_train.csv', 'wb').write(r.content)
-        print('Loaded.')
-
-        print('Test dataset loading.')
-        url = "https://www.dropbox.com/s/9bj5a14unl5os6a/fashion-mnist_test.csv?dl=1"
-        r = requests.get(url, allow_redirects=True)
-        open('../Data/fashion-mnist_test.csv', 'wb').write(r.content)
-        print('Loaded.')
+        download_data()
 
     # Read train, test data.
     raw_train = pd.read_csv('../Data/fashion-mnist_train.csv')
@@ -75,13 +80,15 @@ if __name__ == '__main__':
     y_train = one_hot(raw_train['label'].values)
     y_test = one_hot(raw_test['label'].values)
 
-    # start analysis
+    # # start analysis
     # scale data
     X_train,  X_test = scale(X_train, X_test)
 
     # input neurons - number of features
     # output neurons - number of classes
-    oneLayerNeural = OneLayerNeural(784, 10)
+    n_features = X_train[0].size
+    n_classes = y_train[0].size
+    oneLayerNeural = OneLayerNeural(n_features, n_classes)
 
     # # epoch learning
     loss_history = []
