@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import requests
 from matplotlib import pyplot as plt
-from NeuralNetwork import OneLayerNeural, accuracy, TwoLayerNeural
+from NeuralNetwork import OneLayerNeural, accuracy, TwoLayerNeural, mse_loss
 
 
 def one_hot(data: np.ndarray) -> np.ndarray:
@@ -91,5 +91,9 @@ if __name__ == '__main__':
     # oneLayerNeural = OneLayerNeural(n_features, n_classes)
 
     twoLayerNeural = TwoLayerNeural(n_features, n_classes)
-    print(np.array(twoLayerNeural.forward(X_train[0:2])).flatten().tolist())
 
+    Z1 = twoLayerNeural.forward(X_train[0:2])
+    twoLayerNeural.backprop(X_train[0:2], y_train[0:2], 0.1)
+    Z2 = twoLayerNeural.forward(X_train[0:2])
+
+    print([mse_loss(Z2, y_train[0:2])])

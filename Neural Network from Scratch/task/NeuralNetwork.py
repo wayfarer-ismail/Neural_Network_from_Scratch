@@ -48,6 +48,26 @@ class TwoLayerNeural:
         self.z2 = self.z1 @ self.weights2 + self.biases2
         return sigmoid(self.z2)
 
+    def backprop(self, X, y, alpha):
+        # Calculating error for the second layer
+        error2 = (mse_loss_derivative(self.forward(X), y) * sigmoid_derivative(self.z2))
+        # Calculating error for the first layer
+        error1 = error2 @ self.weights2.T * sigmoid_derivative(self.z1)
+
+        # Calculating gradient for the second layer
+        delta_W2 = (self.z1.T @ error2) / X.shape[0]
+        delta_b2 = np.mean(error2, axis=0)
+
+        # Calculating gradient for the first layer
+        delta_W1 = (X.T @ error1) / X.shape[0]
+        delta_b1 = np.mean(error1, axis=0)
+
+        # Updating weights and biases
+        self.weights2 -= alpha * delta_W2
+        self.biases2 -= alpha * delta_b2
+        self.weights1 -= alpha * delta_W1
+        self.biases1 -= alpha * delta_b1
+
 
 def xavier(n_in, n_out):
     # Calculate the range for the uniform distribution
