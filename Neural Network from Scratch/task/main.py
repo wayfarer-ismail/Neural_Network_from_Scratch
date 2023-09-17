@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import requests
 from matplotlib import pyplot as plt
-from NeuralNetwork import OneLayerNeural, accuracy
+from NeuralNetwork import OneLayerNeural, accuracy, TwoLayerNeural
 
 
 def one_hot(data: np.ndarray) -> np.ndarray:
@@ -88,20 +88,8 @@ if __name__ == '__main__':
     # output neurons - number of classes
     n_features = X_train[0].size
     n_classes = y_train[0].size
-    oneLayerNeural = OneLayerNeural(n_features, n_classes)
+    # oneLayerNeural = OneLayerNeural(n_features, n_classes)
 
-    # # epoch learning
-    loss_history = []
-    accuracy_history = []
-
-    acc1 = accuracy(oneLayerNeural, X_test, y_test)  # accuracy before learning
-
-    for _ in range(20):
-        oneLayerNeural.epoch_learn(X_train, y_train, 0.5)
-        acc = accuracy(oneLayerNeural, X_test, y_test)
-        accuracy_history.append(acc)
-
-    print([acc1], accuracy_history)
-
-    plot(loss_history, accuracy_history, 'plot')
+    twoLayerNeural = TwoLayerNeural(n_features, n_classes)
+    print(np.array(twoLayerNeural.forward(X_train[0:2])).flatten().tolist())
 

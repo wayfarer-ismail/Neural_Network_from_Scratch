@@ -31,6 +31,24 @@ class OneLayerNeural:
             self.backward(X[i:i + batch_size], y[i:i + batch_size], alpha)
 
 
+class TwoLayerNeural:
+    def __init__(self, n_features, n_classes):
+        # Initializing weights
+        self.z2 = None
+        self.z1 = None
+        self.weights1 = xavier(n_features, 64)
+        self.biases1 = xavier(1, 64)
+        self.weights2 = xavier(64, n_classes)
+        self.biases2 = xavier(1, n_classes)
+
+    def forward(self, X):
+        # Calculating feedforward for the first layer (hidden layer with 64 neurons)
+        self.z1 = sigmoid(X @ self.weights1 + self.biases1)
+        # Calculating feedforward for the second layer
+        self.z2 = self.z1 @ self.weights2 + self.biases2
+        return sigmoid(self.z2)
+
+
 def xavier(n_in, n_out):
     # Calculate the range for the uniform distribution
     limit = np.sqrt(6.0 / (n_in + n_out))
