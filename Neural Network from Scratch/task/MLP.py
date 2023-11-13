@@ -70,12 +70,20 @@ class MultiLayerPerceptron:
         :param t: Target t is compared with output O
         :return: the error on the example.
         """
-        error = t - self.O
+        error = self.mse_loss(t)
         delta2 = error * self.sigmoid_derivative(self.O)
         self.dW2 += np.dot(self.H.T, delta2)
         delta1 = np.dot(delta2, self.W2.T) * self.sigmoid_derivative(self.H)
         self.dW1 += np.dot(self.O.T, delta1)
         return error
+
+    def mse_loss(self, t):
+        """
+        :param t: Target t is compared with output O
+        :return: the error on the example.
+        """
+        error = np.array(t).reshape(self.O.shape) - self.O
+        return error ** 2
 
     def update_weights(self, learningRate):
         self.W1 += learningRate * self.dW1
@@ -98,6 +106,6 @@ class MultiLayerPerceptron:
 
     def accuracy(self, I, t):
         # Calculate the accuracy of the model
-        y_pred = np.argmax(self.forward(I), axis=1)
-        y_true = np.argmax(t, axis=1)
-        return np.mean(y_pred == y_true)
+        y_pred = np.round(self.forward(I))
+        accuracy = np.mean(y_pred == t)
+        return accuracy
