@@ -11,7 +11,7 @@ class OneLayerNeural:
         # Perform a forward step
         return sigmoid(a @ self.weights + self.biases)
 
-    def backward(self, X, y, alpha):
+    def backprop(self, X, y, alpha):
         # Perform a backward step
         # Calculate the error
         sig_derivative = sigmoid_derivative(np.dot(X, self.weights) + self.biases)
@@ -24,11 +24,6 @@ class OneLayerNeural:
         # Update weights and biases
         self.weights -= alpha * delta_W
         self.biases -= alpha * delta_b
-
-    def epoch_learn(self, X, y, alpha, batch_size=100):
-        # Perform an epoch of learning
-        for i in range(0, X.shape[0], batch_size):
-            self.backward(X[i:i + batch_size], y[i:i + batch_size], alpha)
 
 
 class TwoLayerNeural:
@@ -97,6 +92,12 @@ def mse_loss_derivative(y_pred, y_true):
 def sigmoid_derivative(x):
     # function to calculate derivative of sigmoid activation function
     return sigmoid(x) * (1 - sigmoid(x))
+
+
+def epoch_learn(model, X, y, alpha, batch_size=100):
+    # Perform an epoch of learning
+    for i in range(0, X.shape[0], batch_size):
+        model.backprop(X[i:i + batch_size], y[i:i + batch_size], alpha)
 
 
 def accuracy(model, X, y):

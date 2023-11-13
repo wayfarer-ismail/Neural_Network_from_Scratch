@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import requests
 from matplotlib import pyplot as plt
-from NeuralNetwork import OneLayerNeural, accuracy, TwoLayerNeural, mse_loss
+from NeuralNetwork import OneLayerNeural, accuracy, TwoLayerNeural, mse_loss, epoch_learn
 
 
 def one_hot(data: np.ndarray) -> np.ndarray:
@@ -88,12 +88,26 @@ if __name__ == '__main__':
     # output neurons - number of classes
     n_features = X_train[0].size
     n_classes = y_train[0].size
-    # oneLayerNeural = OneLayerNeural(n_features, n_classes)
+    oneLayerNeural = OneLayerNeural(n_features, n_classes)
 
     twoLayerNeural = TwoLayerNeural(n_features, n_classes)
 
-    Z1 = twoLayerNeural.forward(X_train[0:2])
-    twoLayerNeural.backprop(X_train[0:2], y_train[0:2], 0.1)
-    Z2 = twoLayerNeural.forward(X_train[0:2])
+    # # start training
+    accuracy_history = []
+    loss_history = []
+    # accuracy_history2 = []
 
-    print([mse_loss(Z2, y_train[0:2])])
+    twoLayerNeural.backprop(X_train, y_train, 0.2)
+    for epoch in range(20):
+        # epoch_learn(oneLayerNeural, X_train, y_train, 0.5)
+        epoch_learn(twoLayerNeural, X_train, y_train, 0.5)
+
+        accuracy_history.append(accuracy(twoLayerNeural, X_test, y_test))
+        loss_history.append(mse_loss(oneLayerNeural.forward(X_train), y_train))
+        # accuracy_history2.append(accuracy(oneLayerNeural, X_test, y_test))
+
+    print(accuracy_history)
+    # print(accuracy_history2)
+
+    # plot graph of accuracy
+    plot(loss_history, accuracy_history, 'twolayer')
