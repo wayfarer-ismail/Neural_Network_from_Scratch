@@ -17,6 +17,28 @@
 import numpy as np
 
 
+def tanh(x):
+    """
+    Hyperbolic tangent function.
+    """
+    return np.sinh(x) / np.cosh(x)
+
+
+def tanh_derivative(x):
+    """
+    Derivative of the hyperbolic tangent function.
+    """
+    return 1 - np.power(tanh(x), 2)
+
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+
+def sigmoid_derivative(x):
+    return x * (1 - x)
+
+
 class MultiLayerPerceptron:
     def __init__(self, n_inputs, n_hidden, n_outputs):
         self.n_inputs = n_inputs
@@ -48,16 +70,10 @@ class MultiLayerPerceptron:
         :param I: processed to produce an output
         """
         self.Z1 = np.dot(I, self.W1)
-        self.H = self.sigmoid(self.Z1)
+        self.H = tanh(self.Z1)
         self.Z2 = np.dot(self.H, self.W2)
-        self.O = self.sigmoid(self.Z2)
+        self.O = tanh(self.Z2)
         return self.O
-
-    def sigmoid(self, x):
-        return 1 / (1 + np.exp(-x))
-
-    def sigmoid_derivative(self, x):
-        return x * (1 - x)
 
     def backwards(self, t):
         """
@@ -71,9 +87,9 @@ class MultiLayerPerceptron:
         :return: the error on the example.
         """
         error = np.array(t).reshape(self.O.shape) - self.O
-        delta2 = error * self.sigmoid_derivative(self.O)
+        delta2 = error * tanh_derivative(self.O)
         self.dW2 += np.dot(self.H.T, delta2)
-        delta1 = np.dot(delta2, self.W2.T) * self.sigmoid_derivative(self.H)
+        delta1 = np.dot(delta2, self.W2.T) * tanh_derivative(self.H)
         self.dW1 += np.dot(self.O.T, delta1)
         return error
 
