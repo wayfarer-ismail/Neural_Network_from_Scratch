@@ -40,7 +40,7 @@ def sigmoid_derivative(x):
 
 
 class MultiLayerPerceptron:
-    def __init__(self, n_inputs, n_hidden, n_outputs):
+    def __init__(self, n_inputs, n_hidden, n_outputs, activation='tanh'):
         self.n_inputs = n_inputs
         self.n_hidden = n_hidden
         self.n_outputs = n_outputs
@@ -55,6 +55,7 @@ class MultiLayerPerceptron:
         self.Z2 = np.zeros(n_outputs)
         self.H = np.zeros(n_hidden)
         self.O = np.zeros(n_outputs)
+        self.activation = activation
 
     def randomise(self):
         """
@@ -70,9 +71,9 @@ class MultiLayerPerceptron:
         :param I: processed to produce an output
         """
         self.Z1 = np.dot(I, self.W1)
-        self.H = tanh(self.Z1)
+        self.H = self.activation_fun(self.Z1)
         self.Z2 = np.dot(self.H, self.W2)
-        self.O = tanh(self.Z2)
+        self.O = self.activation_fun(self.Z2)
         return self.O
 
     def backwards(self, t):
@@ -111,3 +112,118 @@ class MultiLayerPerceptron:
         error = self.backwards(t)
         self.update_weights(learningRate)
         return error
+
+    def activation_fun(self, x):
+        if self.activation == 'tanh':
+            return tanh(x)
+        elif self.activation == 'sigmoid':
+            return sigmoid(x)
+        elif self.activation == 'relu':
+            return np.maximum(0, x)
+        else:
+            raise ValueError('Unknown activation function.')
+
+    def accuracy(self, X, y):
+        # Calculate the accuracy of the model
+        y_pred = np.argmax(self.forward(X), axis=1)
+        y_true = np.argmax(y, axis=1)
+        return np.mean(y_pred == y_true)
+
+
+class MultiLayerPerceptronBig:
+    def __init__(self, n_inputs, n_hidden1, n_hidden2, n_outputs, activation='tanh'):
+        self.n_inputs = n_inputs
+        self.n_hidden1 = n_hidden1
+        self.n_hidden2 = n_hidden2
+        self.n_outputs = n_outputs
+
+        # Initialize weights and biases for hidden layers
+        self.W1 = np.random.rand(n_inputs, n_hidden1)
+        self.b1 = np.random.rand(n_hidden1)
+        self.W2 = np.random.rand(n_hidden1, n_hidden2)
+        self.b2 = np.random.rand(n_hidden2)
+
+        # Initialize weights and biases for output layer
+        self.W_out = np.random.rand(n_hidden2, n_outputs)
+        self.b_out = np.random.rand(n_outputs)
+
+        # Initialize gradient accumulators
+        self.dW1 = np.zeros_like(self.W1)
+        self.db1 = np.zeros_like(self.b1)
+        self.dW2 = np.zeros_like(self.W2)
+        self.db2 = np.zeros_like(self.b2)
+        self.dW_out = np.zeros_like(self.W_out)
+        self.db_out = np.zeros_like(self.b_out)
+
+        self.activation = activation
+
+        self.H1 = None
+        self.H2 = None
+
+    def forward(self, X):
+        """
+        Forward pass through the network.
+        """
+        Z1 = X.dot(self.W1) + self.b1
+        self.H1 = self.activation_fun(Z1)
+
+        Z2 = self.H1.dot(self.W2) + self.b2
+        self.H2 = self.activation_fun(Z2)
+
+        Z_out = self.H2.dot(self.W_out) + self.b_out
+        output = self.activation_fun(Z_out)
+
+        return output
+
+    def backwards(self, X, t, learning_rate):
+        """
+        Backward pass through the network for updating weights and biases.
+        """
+        output = self.forward(X)
+
+        delta_out = (output - t) * self.activation_derivative(output)
+
+        delta_H2 = delta_out.dot(self.W_out.T) * self.activation_derivative(self.H2)
+        delta_H1 = delta_H2.dot(self.W2.T) * self.activation_derivative(self.H1)
+
+        self.dW_out = self.H2.T.dot(delta_out)
+        self.db_out = np.sum(delta_out, axis=0)
+
+        self.dW2 = self.H1.T.dot(delta_H2)
+        self.db2 = np.sum(delta_H2, axis=0)
+
+        self.dW1 = X.T.dot(delta_H1)
+        self.db1 = np.sum(delta_H1, axis=0)
+
+        # Update weights and biases
+        self.W_out -= learning_rate * self.dW_out
+        self.b_out -= learning_rate * self.db_out
+        self.W2 -= learning_rate * self.dW2
+        self.b2 -= learning_rate * self.db2
+        self.W1 -= learning_rate * self.dW1
+        self.b1 -= learning_rate * self.db1
+
+    def accuracy(self, X, y):
+        # Calculate the accuracy of the model
+        y_pred = np.argmax(self.forward(X), axis=1)
+        y_true = np.argmax(y, axis=1)
+        return np.mean(y_pred == y_true)
+
+    def activation_fun(self, x):
+        if self.activation == 'tanh':
+            return np.tanh(x)
+        elif self.activation == 'sigmoid':
+            return 1 / (1 + np.exp(-x))
+
+    def activation_derivative(self, x):
+        if self.activation == 'tanh':
+            return 1 - np.power(np.tanh(x), 2)
+        elif self.activation == 'sigmoid':
+            return x * (1 - x)
+
+    def train(self, X, t, learning_rate):
+        """
+        One round of training, forward pass followed by a backwards pass and weight update.
+        """
+        self.forward(X)
+        self.backwards(X, t, learning_rate)
