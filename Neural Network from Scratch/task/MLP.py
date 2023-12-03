@@ -18,16 +18,10 @@ import numpy as np
 
 
 def tanh(x):
-    """
-    Hyperbolic tangent function.
-    """
     return np.sinh(x) / np.cosh(x)
 
 
 def tanh_derivative(x):
-    """
-    Derivative of the hyperbolic tangent function.
-    """
     return 1 - np.power(tanh(x), 2)
 
 
@@ -78,10 +72,8 @@ class MultiLayerPerceptron:
 
     def backwards(self, t):
         """
-        deltas are computed
-        for the upper layer, and are multiplied by the inputs to the layer (the
-        values in H) to produce the weight updates which are stored in dW2
-        (added to it, as you may want to store these for many examples). Then
+        deltas are computed for the upper layer, and are multiplied by the inputs to the layer
+        (the values in H) to produce the weight updates which are stored in dW2. Then
         deltas are produced for the lower layer, and the same process is
         repeated here, producing weight updates to be added to dW1.
         :param t: Target t is compared with output O
@@ -145,15 +137,10 @@ class MultiLayerPerceptronBig:
 
         # Initialize weights and biases for output layer
         self.W_out = np.random.rand(n_hidden2, n_outputs)
+        self.dW1 = np.zeros((n_inputs, n_hidden1))
+        self.dW2 = np.zeros((n_hidden1, n_hidden2))
+        self.dW_out = np.zeros((n_hidden2, n_outputs))
         self.b_out = np.random.rand(n_outputs)
-
-        # Initialize gradient accumulators
-        self.dW1 = np.zeros_like(self.W1)
-        self.db1 = np.zeros_like(self.b1)
-        self.dW2 = np.zeros_like(self.W2)
-        self.db2 = np.zeros_like(self.b2)
-        self.dW_out = np.zeros_like(self.W_out)
-        self.db_out = np.zeros_like(self.b_out)
 
         self.activation = activation
 
@@ -170,7 +157,7 @@ class MultiLayerPerceptronBig:
         Z2 = self.H1.dot(self.W2) + self.b2
         self.H2 = self.activation_fun(Z2)
 
-        Z_out = self.H2.dot(self.W_out) + self.b_out
+        Z_out = self.H2.dot(self.W_out)  + self.b_out
         output = self.activation_fun(Z_out)
 
         return output
@@ -186,22 +173,14 @@ class MultiLayerPerceptronBig:
         delta_H2 = delta_out.dot(self.W_out.T) * self.activation_derivative(self.H2)
         delta_H1 = delta_H2.dot(self.W2.T) * self.activation_derivative(self.H1)
 
-        self.dW_out = self.H2.T.dot(delta_out)
-        self.db_out = np.sum(delta_out, axis=0)
+        self.dW_out = self.H2.T * delta_out
+        self.b_out = np.sum(delta_out, axis=0)
 
         self.dW2 = self.H1.T.dot(delta_H2)
-        self.db2 = np.sum(delta_H2, axis=0)
+        self.W2 -= learning_rate * self.dW2
 
         self.dW1 = X.T.dot(delta_H1)
-        self.db1 = np.sum(delta_H1, axis=0)
-
-        # Update weights and biases
-        self.W_out -= learning_rate * self.dW_out
-        self.b_out -= learning_rate * self.db_out
-        self.W2 -= learning_rate * self.dW2
-        self.b2 -= learning_rate * self.db2
         self.W1 -= learning_rate * self.dW1
-        self.b1 -= learning_rate * self.db1
 
     def accuracy(self, X, y):
         # Calculate the accuracy of the model
