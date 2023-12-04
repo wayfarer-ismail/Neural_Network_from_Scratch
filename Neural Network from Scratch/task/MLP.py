@@ -33,6 +33,12 @@ def sigmoid_derivative(x):
     return x * (1 - x)
 
 
+def calculate_accuracy(y_true, y_pred, tolerance=0.1):
+    correct = np.sum(np.abs(y_true - y_pred) <= tolerance)
+    total = len(y_true)
+    return correct / total
+
+
 class MultiLayerPerceptron:
     def __init__(self, n_inputs, n_hidden, n_outputs, activation='tanh'):
         self.n_inputs = n_inputs
@@ -188,12 +194,6 @@ class MultiLayerPerceptronBig:
         self.b2 -= learning_rate * np.array(db2).reshape(len(db2), 1)
         self.W1 -= learning_rate * dW1
         self.b1 -= learning_rate * np.array(db1).reshape(len(db1), 1)
-
-    def accuracy(self, X, y):
-        # Calculate the accuracy of the model
-        y_pred = np.argmax(self.forward(X), axis=1)
-        y_true = np.argmax(y, axis=1)
-        return np.mean(y_pred == y_true)
 
     def activation_fun(self, x):
         if self.activation == 'tanh':
