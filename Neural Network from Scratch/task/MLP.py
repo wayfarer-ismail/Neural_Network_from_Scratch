@@ -131,33 +131,33 @@ class MultiLayerPerceptronBig:
 
         # Initialize weights and biases for hidden layers
         self.W1 = np.random.rand(n_inputs, n_hidden1)
-        self.b1 = np.random.rand(n_hidden1)
+        self.b1 = np.random.rand(n_hidden1, 1)
         self.W2 = np.random.rand(n_hidden1, n_hidden2)
-        self.b2 = np.random.rand(n_hidden2)
+        self.b2 = np.random.rand(n_hidden2, 1)
 
         # Initialize weights and biases for output layer
         self.W_out = np.random.rand(n_hidden2, n_outputs)
         self.dW1 = np.zeros((n_inputs, n_hidden1))
         self.dW2 = np.zeros((n_hidden1, n_hidden2))
-        self.dW_out = np.zeros((n_hidden2, n_outputs))
+        # self.dW_out = np.zeros((n_hidden2, n_outputs))
         self.b_out = np.random.rand(n_outputs)
 
         self.activation = activation
 
-        self.H1 = None
-        self.H2 = None
+        self.H1 = np.zeros((n_hidden1, n_hidden2))
+        self.H2 = np.zeros((n_hidden2, n_outputs))
 
     def forward(self, X):
         """
         Forward pass through the network.
         """
-        Z1 = X.dot(self.W1) + self.b1
+        Z1 = X.dot(self.W1) + self.b1.T
         self.H1 = self.activation_fun(Z1)
 
-        Z2 = self.H1.dot(self.W2) + self.b2
+        Z2 = self.H1.dot(self.W2) + self.b2.T
         self.H2 = self.activation_fun(Z2)
 
-        Z_out = self.H2.dot(self.W_out)  + self.b_out
+        Z_out = self.H2.dot(self.W_out) + self.b_out
         output = self.activation_fun(Z_out)
 
         return output
@@ -173,14 +173,21 @@ class MultiLayerPerceptronBig:
         delta_H2 = delta_out.dot(self.W_out.T) * self.activation_derivative(self.H2)
         delta_H1 = delta_H2.dot(self.W2.T) * self.activation_derivative(self.H1)
 
-        self.dW_out = self.H2.T * delta_out
-        self.b_out = np.sum(delta_out, axis=0)
+        dW_out = self.H2.T.dot(delta_out)
+        db_out = np.sum(delta_out, axis=0)
 
-        self.dW2 = self.H1.T.dot(delta_H2)
-        self.W2 -= learning_rate * self.dW2
+        dW2 = self.H1.T.dot(delta_H2)
+        db2 = np.sum(delta_H2, axis=0)
 
-        self.dW1 = X.T.dot(delta_H1)
-        self.W1 -= learning_rate * self.dW1
+        dW1 = np.array(X).reshape(len(X), 1).dot(delta_H1)
+        db1 = np.sum(delta_H1, axis=0)
+
+        self.W_out -= learning_rate * dW_out
+        self.b_out -= learning_rate * db_out
+        self.W2 -= learning_rate * dW2
+        self.b2 -= learning_rate * np.array(db2).reshape(len(db2), 1)
+        self.W1 -= learning_rate * dW1
+        self.b1 -= learning_rate * np.array(db1).reshape(len(db1), 1)
 
     def accuracy(self, X, y):
         # Calculate the accuracy of the model
