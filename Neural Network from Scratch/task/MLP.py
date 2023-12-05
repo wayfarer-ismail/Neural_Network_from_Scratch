@@ -200,12 +200,16 @@ class MultiLayerPerceptronBig:
             return np.tanh(x)
         elif self.activation == 'sigmoid':
             return 1 / (1 + np.exp(-x))
+        elif self.activation == 'relu':
+            return np.maximum(0, x)
 
     def activation_derivative(self, x):
         if self.activation == 'tanh':
             return 1 - np.power(np.tanh(x), 2)
         elif self.activation == 'sigmoid':
             return x * (1 - x)
+        elif self.activation == 'relu':
+            return np.where(x <= 0, 0, 1)
 
     def train(self, X, t, learning_rate):
         """
